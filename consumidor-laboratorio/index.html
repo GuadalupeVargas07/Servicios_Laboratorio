@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumidor - Gestor de Equipos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f8f9fa; }
+        h1, h2 { color: #333; }
+        .container { display: flex; gap: 30px; flex-wrap: wrap; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #0056b3; }
+        .btn-verde { background-color: #28a745; }
+        .btn-verde:hover:not(:disabled) { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .badge { padding: 4px 8px; border-radius: 4px; color: white; font-size: 12px; font-weight: bold; }
+        .badge-true { background-color: #28a745; }
+        .badge-false { background-color: #dc3545; }
+        .actions { margin-bottom: 15px; display: flex; gap: 10px; }
+        .error { color: #dc3545; font-weight: bold; margin-top: 10px; }
+        .exito { color: #28a745; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Gestión de Equipos - Laboratorio</h1>
+
+    <div class="container">
+        <!-- Formulario para Insertar Nuevo Equipo -->
+        <div class="card">
+            <h2>Registrar Nuevo Equipo</h2>
+            <form id="equipoForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" placeholder="Ej. Multímetro Digital" required>
+                </div>
+                <div class="form-group">
+                    <label for="marca">Marca:</label>
+                    <input type="text" id="marca" placeholder="Ej. Fluke" required>
+                </div>
+                <div class="form-group">
+                    <label for="modelo">Modelo:</label>
+                    <input type="text" id="modelo" placeholder="Ej. 177 ES" required>
+                </div>
+                <div class="form-group">
+                    <label for="numeroSerie">Número de Serie:</label>
+                    <input type="text" id="numeroSerie" placeholder="Ej. FLK-2026-002" required>
+                </div>
+                <div class="form-group">
+                    <label for="estado">Estado Operacional:</label>
+                    <select id="estado">
+                        <option value="DISPONIBLE">DISPONIBLE</option>
+                        <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                        <option value="PRESTADO">PRESTADO</option>
+                        <option value="REPARACION">REPARACION</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="disponible">Disponibilidad:</label>
+                    <select id="disponible">
+                        <option value="true">Disponible (Sí)</option>
+                        <option value="false">No disponible (No)</option>
+                    </select>
+                </div>
+                <button type="submit" id="btnGuardar">Guardar Equipo</button>
+            </form>
+            <p id="mensajeForm"></p>
+        </div>
+
+        <!-- Tabla y Filtros -->
+        <div style="flex: 1; min-width: 300px;">
+            <h2>Listado de Equipos</h2>
+            <div class="actions">
+                <button type="button" id="btnVerTodo">Ver Todo el Catálogo</button>
+                <button type="button" id="btnVerDisponibles" class="btn-verde">Ver Solo Disponibles</button>
+            </div>
+            <p id="mensajeTabla"></p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Marca / Modelo</th>
+                        <th>N° Serie</th>
+                        <th>Estado</th>
+                        <th>Disponible</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEquipos">
+                    <!-- Filas dinámicas -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
