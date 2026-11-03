@@ -1,0 +1,6 @@
+com\example\laboratorio\controlador\EquipoController.class
+com\example\laboratorio\repositorio\EquipoRepository.class
+com\example\laboratorio\LaboratorioApplication.class
+com\example\laboratorio\modelo\Equipo.class
+com\example\laboratorio\servicio\EquipoService.class
+WebController\java.class
