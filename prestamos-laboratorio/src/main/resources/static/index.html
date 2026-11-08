@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+    
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html lang="es">
+    <head>
+        <title>Préstamo de Laboratorio</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style> 
+        button {
+            background : #0056b3;
+            color: #ffffff;
+            border: 1px solid #003f85;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover{
+            background: #003f85;
+        }
+        button:disabled{
+            background: #555555;
+            color: #ffffff;
+            cursor: wait;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Préstamo de Laboratorio</h1>
+        <p>Consulta de préstamos y equipos,</p>
+        <section>
+            <h2> Préstamos registrados</h2>
+            <button type = "button" id ="btnListar"> Consultar préstamos </button>
+            
+            <p id="mensajePrestamos" role="status"></p>
+            <ul id="listaPrestamos"></ul>
+        </section>    
+        <section> 
+            <h2>Buscar préstamo por identificador</h2>
+            
+            <form id="formBuscarPrestamo"> 
+                <label for="idPrestamo"> Identificador del prestamo</label>
+                <input type ="text" id="idPrestamo" required> 
+                <button type =submit id="btnBuscarPrestamo"> Buscar préstamo</button>
+            </form>
+            
+            <p id="resultadoPrestamo" role="status"></p>
+        </section>
+        <section>
+        <h2>Registrar Equipo</h2>
+        
+        <form id="formRegistrar">
+            <button type="button" id="btnReservar">Reservar equipo</button>
+
+            <label for="matriculaRegistro">Nombre:</label>
+            <input type="text" id="matriculaRegistro" required>
+            <button type="submit" id="btnRegistrar">Registrar Equipo</button>
+        </form>
+        <p id="resultadoRegistro" role="status"></p>
+        </section>
+        
+        <section>
+            <h2>Cancelar Prestamo</h2>
+            
+            <form id="formCancelar">
+            <label for="prestamoCancelar"> Identificador del Prestamo</label>
+            <input type="number" id="prestamoCancelar" min="1" step="1" required>
+            
+            <button type="submit" id="btnCancelar">Cancelar Prestamo</button>
+            </form>
+            <p id="resultadoCancelacion" role="status"></p>
+        </section>
+
+        <script>
+            const botonListar = document.getElementById("btnListar");
+            const mensajePrestamos = document.getElementById("mensajePrestamos");
+            const listaPrestamos = document.getElementById("listaPrestamos");
+            const formBuscarPrestamo = document.getElementById("formBuscarPrestamo");
+            const idPrestamo = document.getElementById("idPrestamo");
+            const btnBuscarPrestamo = document.getElementById("btnBuscarPrestamo");
+            const resultadoPrestamo = document.getElementById("resultadoPrestamo");
+            const formRegistrar = document.getElementById("formRegistrar");
+            const matriculaRegistro = document.getElementById("matriculaRegistro");
+            const btnRegistrar = document.getElementById("btnRegistrar");
+            const resultadoRegistro = document.getElementById("resultadoRegistro");
+            
+            const formCancelar = document.getElementById("formCancelar");
+            const prestamoCancelar = document.getElementById("prestamoCancelar");
+            const btnCancelar = document.getElementById("btnCancelar");
+            const resultadoCancelacion = document.getElementById("resultadoCancelacion");
+            const btnReservar = document.getElementById("btnReservar");
+            
+btnReservar.addEventListener("click", async () => {
+    if (!formRegistrar.reportValidity()) {
+        return;
+    }
+
+    const nombre = matriculaRegistro.value.trim();
+
+    if (nombre === "") {
+        resultadoRegistro.textContent = "El nombre es obligatorio.";
+        return;
+    }
+
+    await enviarOperacion(
+        "/api/prestamos/reservas/por-nombre",
+        { nombre: nombre },
+        btnReservar,
+        resultadoRegistro
+    );
+});
+  
+            async function enviarOperacion(url, cuerpo, boton, salida) {
+                resultadoRegistro.textContent= "";
+                resultadoCancelacion.textContent= "";
+                resultadoPrestamo.textContent= "";
+                boton.disabled = true; 
+                salida.textContent ="Procesando...";
+                
+            
+            try{
+                const opciones = {
+                method: "POST",
+                headers: {"Accept": "application/json" }
+            };
+            if (cuerpo !==null){
+                opciones.headers["Content-Type"] = "application/json";
+                opciones.body = JSON.stringify(cuerpo);
+            }
+            
+            const respuesta = await fetch(url, opciones);
+            const datos = await respuesta.json();
+            
+            if(!respuesta.ok) {
+                salida.textContent =
+                        "Error " + respuesta.status + ": "
+                        + (datos.detail || "No fue posible completar la operacion."); 
+                return;
+               }
+            salida.textContent = 
+                "Prestamo #" + datos.id
+                + "| Equipo: " + datos.nombreEquipo 
+                + "| Matricula: " + datos.matricula 
+                + "| Estado: " + datos.estado; 
+        
+            if (datos.fechaCancelacion){
+                salida.textContent +=
+                        " | Fecha de cancelación: " + datos.fechaCancelacion;           
+            }
+            document.getElementById("btnListar").click();
+            }catch (error){
+                salida.textContent = "No se pudo confirmar el resultado. Consulta el listado antes de repetir.";;
+                
+            document.getElementById("btnListar");    
+            
+            }finally{
+                boton.disabled = false;
+                }
+               }
+               
+formRegistrar.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const nombre = matriculaRegistro.value.trim();
+
+    if (nombre === "") {
+        resultadoRegistro.textContent = "El nombre es obligatorio.";
+        return;
+    }
+
+    btnRegistrar.disabled = true;
+    resultadoRegistro.textContent = "Registrando equipo...";
+
+    try {
+        const respuesta = await fetch("/api/prestamos/equipos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ nombre: nombre })
+        });
+
+        const equipo = await respuesta.json();
+
+        if (!respuesta.ok) {
+            resultadoRegistro.textContent =
+                "Error " + respuesta.status + ": " +
+                (equipo.detail || "No fue posible registrar el equipo.");
+            return;
+        }
+
+        resultadoRegistro.textContent =
+            "Equipo registrado | ID: " + equipo.id +
+            " | Nombre: " + equipo.nombre +
+            " | Disponible: " + (equipo.disponible ? "Sí" : "No");
+
+    } catch (error) {
+        resultadoRegistro.textContent =
+            "No se pudo confirmar el registro. " +
+            "Consulta el catálogo antes de repetir para evitar duplicados.";
+    } finally {
+        btnRegistrar.disabled = false;
+    }
+});
+            formCancelar.addEventListener("submit", async(evento) =>{
+                evento.preventDefault();
+                
+                const id = Number(prestamoCancelar.value);
+                
+                if(!Number.isSafeInteger(id) || id <= 0){
+                    resultadoCancelacion.textContent =
+                            "Escribe un identificador mayor a 0";
+                    return;
+                }
+                await enviarOperacion(
+                    "/api/prestamos/" + id + "/cancelar",
+                    null,
+                    btnCancelar,
+                    resultadoCancelacion
+                    );       
+               });
+            
+            formBuscarPrestamo.addEventListener("submit", async (evento)=> {
+                evento.preventDefault();
+                
+                const id = idPrestamo.value.trim();
+                
+                if(id=== ""){
+                    resultadoPrestamo.textContent = "Escribe un identificador";
+                    return;
+                }
+             
+                btnBuscarPrestamo.disabled =true;
+                resultadoPrestamo.textContent = "Buscando Préstamo...";        
+                
+                try{
+                    const respuesta = await fetch(
+                        "/api/prestamos/" + encodeURIComponent(id),
+                        { headers: { "Accept": "application/json" } }
+                            );
+                    const datos = await respuesta.json();
+                    if(!respuesta.ok){
+                        resultadoPrestamo.textContent = 
+                                "Error " + respuesta.status + ": " 
+                                + (datos.detail || "No fue posible consultar el prestamo.");
+                        return;
+                    }
+            
+            
+            resultadoPrestamo.textContent =
+                    "Prestamo #" + datos.id
+                    + " | Equipo: " + datos.nombreEquipo
+                    + " | Matricula: " + datos.matricula
+                    + " | Fecha: " + datos.fechaPrestamo
+                    + " | Estado: " + datos.estado;
+            
+            } catch (error){
+                resultadoPrestamo.textContent = 
+                        "No fue posible completar la consulta. "
+                        + "Revisa la conexion y la respuesta del servidor";
+            }finally{
+            btnBuscarPrestamo.disabled = false;
+            }
+            });
+            
+            
+            botonListar.addEventListener("click", async ()=> {
+                botonListar.disabled = true;
+                mensajePrestamos.textContent = "Consultando préstamos...";
+                listaPrestamos.replaceChildren();
+                
+                try {
+                    const respuesta  = await fetch ("/api/prestamos",{
+                    headers : { "Accept": "application/json"}
+                    
+                    });
+                    if(!respuesta.ok){
+                        throw new Error(
+                                "No fue posible consultar los prestamos. HTTP "
+                                + respuesta.status
+                                );
+                        }
+                    const prestamos = await respuesta.json();
+                    
+                    if(!Array.isArray(prestamos)){
+                        throw new Error("El servidor devolvió una respuesta inesperada");
+                    }
+                    if(prestamos.length ===0) {
+                        mensajePrestamos.textContent = "No hay prestamos registrados";
+                    } else{
+                        mensajePrestamos.textContent =
+                                "Prestamos encontrados: " + prestamos.length;
+                        for(const prestamo of prestamos){
+                            const elemento = document.createElement("li");
+                           
+                            elemento.textContent = 
+                            "Préstamo #" + prestamo.id
+                            +" | Equipo: " + prestamo.nombreEquipo
+                            +" | Matricula: " + prestamo.matricula
+                            +" | Estado: " + prestamo.estado;
+                    
+                            listaPrestamos.appendChild(elemento);
+                        }
+                     }
+            
+                        }  catch (error){
+                        mensajePrestamos.textContent = 
+                                error instanceof TypeError
+                        ?"No fue posible comunicarse con el servidor."
+                        : error.message;
+                    }finally{
+                    botonListar.disabled = false; 
+                    }
+                });
+        </script>
+    </body>
+</html>
