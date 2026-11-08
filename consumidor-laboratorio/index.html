@@ -101,6 +101,52 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+
+    <!-- Aquí va mi parte de mantenimiento -->
+    <hr style="margin: 40px 0;">
+    <h1>Mantenimiento de Equipos-Laboratorio</h1>
+
+    <div class="container">
+        <h2>Registrar Mantenimiento</h2>
+        <form id="mantenimientoForm">
+            <div class="form-group">
+                <label for="mantEquipoId">ID del equipo</label>
+                <input type="number" id="mantEquipoId" min="1" placeholder="Ej. 1" required>
+            </div>
+            <div class="form-group">
+              <label for="mantDescripcion">Descripción del mantenimiento</label>
+              <input type="text" name="mantDescripcion" id="mantDescripcion" class="form-control" placeholder="Ej. Limpieza y desinfección" aria-describedby="helpId">
+              <small id="helpId" class="text-muted">Help text</small>
+            </div>
+            <button type="submit" id="btnRegistrarMantenimiento">Registrar Mantenimiento</button>
+        </form>
+        <p id="mensajeMantenimiento"></p>
+    </div>
+
+
+    <!-- Tabla de Reportes de Mantenimiento -->
+    <div style="flex: 1; min-width: 300px">
+        <h2>Reportes de Mantenimiento</h2>
+        <div class="actions">
+            <button type="button" id="btnVerMantenimiento">Actualizar </button>
+        </div>
+        <p id="mensajeTablaMant"></p>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID del Equipo</th>
+                    <th>ID Equipo</th>
+                    <th>Falla</th>
+                    <th>Estado</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody id="tablaReportes">
+               
+            </tbody>
+        </table>
+    </div>
+
+ <script src="app.js"></script>
 </body>
 </html>
